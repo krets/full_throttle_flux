@@ -12,8 +12,11 @@ size = Vector3(1.5, 1, 5)
 [node name="HoverShip" type="RigidBody3D"]
 script = ExtResource("1_3hi3g")
 
-[node name="ShipMesh" type="MeshInstance3D" parent="."]
+[node name="VisualBody" type="Node3D" parent="."]
+
+[node name="ShipMesh" type="MeshInstance3D" parent="VisualBody"]
 mesh = SubResource("BoxMesh_kqgsd")
+skeleton = NodePath("../..")
 
 [node name="HoverPoints" type="Node3D" parent="."]
 
