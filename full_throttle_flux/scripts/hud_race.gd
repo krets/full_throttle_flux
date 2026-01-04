@@ -5,12 +5,23 @@ class_name HUDRace
 
 @export var ship: AGShip2097
 
+@export_group("Speed Display")
+## Multiplier to convert velocity units to displayed km/h
+## 3.6 = treats 1 unit as 1 meter (realistic)
+## Lower values (1.0-2.0) = if your track is scaled larger than real-world
+## Adjust until displayed speed matches visual feel
+@export var speed_display_multiplier := 3.6
+
+## Minimum speed to display (hides tiny residual velocities)
+@export var speed_display_threshold := 0.5
+
 # UI References
 var countdown_label: Label
 var lap_info_label: Label
 var lap_times_label: RichTextLabel
 var current_time_label: Label
 var speed_label: Label
+var fps_label: Label
 
 func _ready() -> void:
 	# Connect to RaceManager signals
@@ -95,18 +106,52 @@ func _create_ui_elements() -> void:
 	speed_label.add_theme_constant_override("shadow_offset_y", 2)
 	speed_label.text = "0 km/h"
 	add_child(speed_label)
+	
+	# FPS counter (bottom right)
+	fps_label = Label.new()
+	fps_label.name = "FPSLabel"
+	fps_label.position = Vector2(1920 - 150, 1080 - 60)
+	fps_label.size = Vector2(130, 40)
+	fps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	fps_label.add_theme_font_size_override("font_size", 24)
+	fps_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	fps_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	fps_label.add_theme_constant_override("shadow_offset_x", 1)
+	fps_label.add_theme_constant_override("shadow_offset_y", 1)
+	fps_label.text = "60 FPS"
+	add_child(fps_label)
 
 func _process(_delta: float) -> void:
 	_update_speed()
 	_update_current_time()
+	_update_fps()
 
 func _update_speed() -> void:
 	if not ship:
 		speed_label.text = "0 km/h"
 		return
 	
-	var speed_kmh = ship.velocity.length() * 3.6
+	var speed_raw = ship.velocity.length()
+	
+	# Apply threshold to avoid showing tiny residual velocities
+	if speed_raw < speed_display_threshold:
+		speed_label.text = "0 km/h"
+		return
+	
+	var speed_kmh = speed_raw * speed_display_multiplier
 	speed_label.text = "%d km/h" % int(speed_kmh)
+
+func _update_fps() -> void:
+	var fps = Engine.get_frames_per_second()
+	fps_label.text = "%d FPS" % fps
+	
+	# Color code FPS for performance feedback
+	if fps >= 55:
+		fps_label.add_theme_color_override("font_color", Color(0.3, 1, 0.3))  # Green
+	elif fps >= 30:
+		fps_label.add_theme_color_override("font_color", Color(1, 1, 0.3))  # Yellow
+	else:
+		fps_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))  # Red
 
 func _update_current_time() -> void:
 	if RaceManager.is_racing():
