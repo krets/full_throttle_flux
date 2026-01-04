@@ -41,6 +41,10 @@ var current_race_time: float = 0.0
 var lap_times: Array[float] = []
 var best_lap_time: float = INF
 
+# Pause tracking
+var total_paused_time: float = 0.0
+var pause_start_time: float = 0.0
+
 # ============================================================================
 # LEADERBOARD DATA
 # ============================================================================
@@ -90,6 +94,8 @@ func _start_race() -> void:
 	current_lap = 1
 	lap_times.clear()
 	best_lap_time = INF
+	total_paused_time = 0.0
+	pause_start_time = 0.0
 	
 	race_start_time = Time.get_ticks_msec() / 1000.0
 	lap_start_time = race_start_time
@@ -101,7 +107,7 @@ func complete_lap() -> void:
 		return
 	
 	var current_time = Time.get_ticks_msec() / 1000.0
-	var lap_time = current_time - lap_start_time
+	var lap_time = (current_time - lap_start_time) - total_paused_time
 	
 	lap_times.append(lap_time)
 	
@@ -115,11 +121,14 @@ func complete_lap() -> void:
 	if current_lap > total_laps:
 		_finish_race()
 	else:
+		# Reset paused time for new lap
 		lap_start_time = current_time
+		total_paused_time = 0.0
 
 func _finish_race() -> void:
 	current_state = RaceState.FINISHED
-	current_race_time = Time.get_ticks_msec() / 1000.0 - race_start_time
+	var current_time = Time.get_ticks_msec() / 1000.0
+	current_race_time = (current_time - race_start_time) - total_paused_time
 	
 	race_finished.emit(current_race_time, best_lap_time)
 
@@ -131,15 +140,21 @@ func reset_race() -> void:
 	race_start_time = 0.0
 	lap_start_time = 0.0
 	current_race_time = 0.0
+	total_paused_time = 0.0
+	pause_start_time = 0.0
 
 func pause_race() -> void:
 	if current_state == RaceState.RACING:
 		current_state = RaceState.PAUSED
+		pause_start_time = Time.get_ticks_msec() / 1000.0
 		get_tree().paused = true
 
 func resume_race() -> void:
 	if current_state == RaceState.PAUSED:
 		current_state = RaceState.RACING
+		var current_time = Time.get_ticks_msec() / 1000.0
+		var pause_duration = current_time - pause_start_time
+		total_paused_time += pause_duration
 		get_tree().paused = false
 
 # ============================================================================
@@ -147,13 +162,21 @@ func resume_race() -> void:
 # ============================================================================
 
 func get_current_race_time() -> float:
-	if current_state == RaceState.RACING or current_state == RaceState.PAUSED:
-		return Time.get_ticks_msec() / 1000.0 - race_start_time
+	if current_state == RaceState.RACING:
+		var current_time = Time.get_ticks_msec() / 1000.0
+		return (current_time - race_start_time) - total_paused_time
+	elif current_state == RaceState.PAUSED:
+		# When paused, return time at moment of pause
+		return (pause_start_time - race_start_time) - total_paused_time
 	return current_race_time
 
 func get_current_lap_time() -> float:
-	if current_state == RaceState.RACING or current_state == RaceState.PAUSED:
-		return Time.get_ticks_msec() / 1000.0 - lap_start_time
+	if current_state == RaceState.RACING:
+		var current_time = Time.get_ticks_msec() / 1000.0
+		return (current_time - lap_start_time) - total_paused_time
+	elif current_state == RaceState.PAUSED:
+		# When paused, return time at moment of pause
+		return (pause_start_time - lap_start_time) - total_paused_time
 	return 0.0
 
 func is_racing() -> bool:
