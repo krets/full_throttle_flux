@@ -20,6 +20,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	_create_ui()
 	_connect_signals()
+	_setup_focus()
 
 func _create_ui() -> void:
 	# Panel container
@@ -77,6 +78,7 @@ func _create_pause_button(text: String, parent: Control) -> Button:
 	button.text = text
 	button.custom_minimum_size = Vector2(400, 50)
 	button.add_theme_font_size_override("font_size", 24)
+	button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	parent.add_child(button)
 	return button
 
@@ -85,6 +87,21 @@ func _connect_signals() -> void:
 	restart_button.pressed.connect(_on_restart_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	debug_toggle_button.pressed.connect(_on_debug_toggle_pressed)
+
+func _setup_focus() -> void:
+	# Set up focus navigation chain
+	if resume_button and restart_button and quit_button and debug_toggle_button:
+		resume_button.focus_neighbor_top = debug_toggle_button.get_path()
+		resume_button.focus_neighbor_bottom = restart_button.get_path()
+		
+		restart_button.focus_neighbor_top = resume_button.get_path()
+		restart_button.focus_neighbor_bottom = quit_button.get_path()
+		
+		quit_button.focus_neighbor_top = restart_button.get_path()
+		quit_button.focus_neighbor_bottom = debug_toggle_button.get_path()
+		
+		debug_toggle_button.focus_neighbor_top = quit_button.get_path()
+		debug_toggle_button.focus_neighbor_bottom = resume_button.get_path()
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):  # ESC key
@@ -97,6 +114,10 @@ func show_pause() -> void:
 	visible = true
 	_update_debug_button_text()
 	RaceManager.pause_race()
+	
+	# Set focus to resume button when pause menu appears
+	if resume_button:
+		resume_button.grab_focus()
 
 func hide_pause() -> void:
 	visible = false

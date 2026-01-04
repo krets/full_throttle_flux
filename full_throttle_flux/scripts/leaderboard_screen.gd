@@ -8,6 +8,7 @@ var back_button: Button
 
 func _ready() -> void:
 	_create_ui()
+	_setup_focus()
 
 func _create_ui() -> void:
 	# Main container
@@ -80,7 +81,13 @@ func _create_ui() -> void:
 	back_button.position = Vector2(1920/2 - 150, 950)
 	back_button.custom_minimum_size = Vector2(300, 70)
 	back_button.add_theme_font_size_override("font_size", 32)
+	back_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	back_button.pressed.connect(_on_back_pressed)
+
+func _setup_focus() -> void:
+	# Set initial focus to back button
+	if back_button:
+		back_button.grab_focus()
 
 func _populate_leaderboard(parent: VBoxContainer, leaderboard: Array[Dictionary]) -> void:
 	if leaderboard.is_empty():

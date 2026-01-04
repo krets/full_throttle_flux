@@ -11,6 +11,7 @@ var quit_button: Button
 func _ready() -> void:
 	_create_ui()
 	_connect_signals()
+	_setup_focus()
 
 func _create_ui() -> void:
 	# Title
@@ -49,6 +50,7 @@ func _create_menu_button(text: String, parent: Control) -> Button:
 	button.text = text
 	button.custom_minimum_size = Vector2(400, 60)
 	button.add_theme_font_size_override("font_size", 28)
+	button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	parent.add_child(button)
 	return button
 
@@ -59,6 +61,21 @@ func _connect_signals() -> void:
 		leaderboard_button.pressed.connect(_on_leaderboard_pressed)
 	if quit_button:
 		quit_button.pressed.connect(_on_quit_pressed)
+
+func _setup_focus() -> void:
+	# Set up focus navigation chain
+	if start_button and leaderboard_button and quit_button:
+		start_button.focus_neighbor_top = quit_button.get_path()
+		start_button.focus_neighbor_bottom = leaderboard_button.get_path()
+		
+		leaderboard_button.focus_neighbor_top = start_button.get_path()
+		leaderboard_button.focus_neighbor_bottom = quit_button.get_path()
+		
+		quit_button.focus_neighbor_top = leaderboard_button.get_path()
+		quit_button.focus_neighbor_bottom = start_button.get_path()
+		
+		# Set initial focus to start button
+		start_button.grab_focus()
 
 func _on_start_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/time_trial_01.tscn")

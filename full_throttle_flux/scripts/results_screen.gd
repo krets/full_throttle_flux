@@ -183,7 +183,7 @@ func _show_initials_entry() -> void:
 	
 	# Instructions
 	var instructions = Label.new()
-	instructions.text = "Press ENTER when done"
+	instructions.text = "Press ENTER when done | Gamepad A to submit"
 	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instructions.add_theme_font_size_override("font_size", 20)
 	instructions.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
@@ -193,13 +193,16 @@ func _input(event: InputEvent) -> void:
 	if current_state != State.ENTERING_INITIALS:
 		return
 	
+	# Handle accept action (ENTER or gamepad A)
+	if event.is_action_pressed("ui_accept"):
+		if current_initials.length() >= 1:  # At least one letter
+			_submit_initials()
+		return
+	
 	if event is InputEventKey and event.pressed:
 		var key = event.keycode
 		
-		if key == KEY_ENTER or key == KEY_KP_ENTER:
-			if current_initials.length() >= 1:  # At least one letter
-				_submit_initials()
-		elif key == KEY_BACKSPACE:
+		if key == KEY_BACKSPACE:
 			if current_initials.length() > 0:
 				current_initials = current_initials.substr(0, current_initials.length() - 1)
 				_update_initials_display()
@@ -289,6 +292,7 @@ func _show_leaderboards() -> void:
 	retry_button.text = "RETRY"
 	retry_button.custom_minimum_size = Vector2(200, 60)
 	retry_button.add_theme_font_size_override("font_size", 28)
+	retry_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	retry_button.pressed.connect(_on_retry_pressed)
 	buttons_container.add_child(retry_button)
 	
@@ -296,8 +300,18 @@ func _show_leaderboards() -> void:
 	quit_button.text = "QUIT TO MENU"
 	quit_button.custom_minimum_size = Vector2(200, 60)
 	quit_button.add_theme_font_size_override("font_size", 28)
+	quit_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	quit_button.pressed.connect(_on_quit_pressed)
 	buttons_container.add_child(quit_button)
+	
+	# Set up button navigation
+	retry_button.focus_neighbor_left = quit_button.get_path()
+	retry_button.focus_neighbor_right = quit_button.get_path()
+	quit_button.focus_neighbor_left = retry_button.get_path()
+	quit_button.focus_neighbor_right = retry_button.get_path()
+	
+	# Set initial focus to retry button
+	retry_button.grab_focus()
 
 func _populate_leaderboard(parent: VBoxContainer, leaderboard: Array[Dictionary]) -> void:
 	if leaderboard.is_empty():
