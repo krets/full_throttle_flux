@@ -3,6 +3,7 @@ class_name AGCamera2097
 
 ## WipEout 2097 Style Chase Camera
 ## Follows the ship with speed-based zoom and smooth tracking
+## Now with collision detection to prevent clipping through walls
 
 ## Reference to the ship being followed.
 ## Must be set for camera to function.
@@ -50,8 +51,29 @@ class_name AGCamera2097
 ## Should be higher than base_fov. Typical range: 75-90.
 @export var max_fov := 80.0
 
+@export_group("Collision")
+
+## Enable camera collision detection to prevent clipping through walls.
+@export var collision_enabled := true
+
+## How much to pull the camera back from collision point (safety margin).
+## Prevents camera from touching the wall exactly. Range: 0.1-0.5
+@export var collision_margin := 0.3
+
+## How quickly camera returns to normal distance after collision (factor per second).
+## Higher = snappier return, lower = smoother. Range: 3.0-10.0
+@export var collision_recovery_speed := 5.0
+
+## Collision mask - which layers the camera should collide with.
+## Layer 1 = track geometry. Adjust if needed.
+@export_flags_3d_physics var collision_mask := 1
+
 var shake_offset := Vector3.ZERO
 var shake_intensity := 0.0
+
+# Collision state
+var collision_distance := 0.0  # Current collision-adjusted distance
+var target_collision_distance := 0.0  # Target distance based on raycast
 
 func _physics_process(delta: float) -> void:
 	if not ship:
@@ -59,17 +81,21 @@ func _physics_process(delta: float) -> void:
 	
 	var speed_ratio = ship.get_speed_ratio()
 	
-	# Calculate camera offset with speed-based zoom
+	# Calculate desired camera offset with speed-based zoom
 	var dynamic_offset = base_offset
 	dynamic_offset.z += speed_zoom * speed_ratio
 	
 	# Transform offset to world space based on ship orientation
-	# But use a smoothed/stable version of the ship's rotation
 	var ship_basis = ship.global_transform.basis
-	var target_pos = ship.global_position + ship_basis * dynamic_offset
+	var desired_pos = ship.global_position + ship_basis * dynamic_offset
 	
-	# Smooth follow
-	global_position = global_position.lerp(target_pos, follow_speed * delta)
+	# Apply collision detection if enabled
+	var final_target_pos = desired_pos
+	if collision_enabled:
+		final_target_pos = _apply_collision_detection(ship.global_position, desired_pos, dynamic_offset.length())
+	
+	# Smooth follow to final position
+	global_position = global_position.lerp(final_target_pos, follow_speed * delta)
 	
 	# Add shake
 	global_position += shake_offset
@@ -85,6 +111,42 @@ func _physics_process(delta: float) -> void:
 	
 	# Dynamic FOV
 	fov = lerp(base_fov, max_fov, speed_ratio)
+
+func _apply_collision_detection(ship_pos: Vector3, desired_cam_pos: Vector3, desired_distance: float) -> Vector3:
+	# Cast ray from ship to desired camera position
+	var space_state = get_world_3d().direct_space_state
+	
+	var query = PhysicsRayQueryParameters3D.new()
+	query.from = ship_pos
+	query.to = desired_cam_pos
+	query.collision_mask = collision_mask
+	query.exclude = [ship]  # Don't collide with the ship itself
+	
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		# Hit something! Calculate safe camera position
+		var hit_point = result.position
+		var hit_distance = ship_pos.distance_to(hit_point)
+		
+		# Pull back by collision_margin to avoid touching the wall
+		var safe_distance = max(hit_distance - collision_margin, 0.5)  # Minimum 0.5 units from ship
+		target_collision_distance = safe_distance
+	else:
+		# No collision, use full desired distance
+		target_collision_distance = desired_distance
+	
+	# Smoothly interpolate current collision distance toward target
+	collision_distance = lerp(collision_distance, target_collision_distance, collision_recovery_speed * get_physics_process_delta_time())
+	
+	# If we're collision-limited, place camera at the safe distance
+	if collision_distance < desired_distance - 0.1:
+		# Camera is being pushed in by collision
+		var direction = (desired_cam_pos - ship_pos).normalized()
+		return ship_pos + direction * collision_distance
+	else:
+		# No collision affecting us, use desired position
+		return desired_cam_pos
 
 func apply_shake(intensity: float) -> void:
 	shake_intensity = max(shake_intensity, intensity)
