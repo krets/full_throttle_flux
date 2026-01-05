@@ -178,6 +178,27 @@ class_name AGShip2097
 @export var slope_gravity_factor := 0.8
 
 # ============================================================================
+# CAMERA SHAKE PARAMETERS
+# ============================================================================
+
+@export_group("Camera Shake")
+
+## Reference to the camera for shake effects on collision.
+## If not set, camera shake will be disabled.
+@export var camera: AGCamera2097
+
+## Enable/disable camera shake on collisions.
+@export var collision_shake_enabled := true
+
+## Base shake intensity multiplier for collisions.
+## Higher = more dramatic shake. Range: 0.0-1.0
+@export var shake_intensity := 0.3
+
+## Speed threshold for shake to trigger (velocity units).
+## Collisions below this speed won't trigger shake.
+@export var shake_speed_threshold := 20.0
+
+# ============================================================================
 # NODE REFERENCES
 # ============================================================================
 
@@ -540,9 +561,16 @@ func _handle_wall_collision(wall_normal: Vector3) -> void:
 	var rotate_away = wall_normal.cross(Vector3.UP).dot(-global_transform.basis.z)
 	rotate_y(rotate_away * wall_rotation_force * get_physics_process_delta_time())
 	
-	# Optional: Apply damage based on impact speed
-	# var damage = impact_speed * 0.03
-	# apply_damage(damage)
+	# Apply camera shake based on impact speed
+	if collision_shake_enabled and camera and impact_speed > shake_speed_threshold:
+		# Calculate shake intensity based on impact speed
+		# Normalize speed to 0-1 range (threshold to max_speed)
+		var speed_ratio = (impact_speed - shake_speed_threshold) / (max_speed - shake_speed_threshold)
+		speed_ratio = clamp(speed_ratio, 0.0, 1.0)
+		
+		# Apply shake with intensity based on impact
+		var final_intensity = shake_intensity * speed_ratio * 2.0  # 2.0 = max shake amount
+		camera.apply_shake(final_intensity)
 
 # ============================================================================
 # VISUAL FEEDBACK
