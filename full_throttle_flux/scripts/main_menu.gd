@@ -25,7 +25,7 @@ func _create_ui() -> void:
 		title_label.name = "TitleLabel"
 		add_child(title_label)
 	
-	title_label.text = "ANTI-GRAV RACING 2097"
+	title_label.text = "FULL THROTTLE FLUX"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.position = Vector2(1920/2 - 400, 200)
 	title_label.size = Vector2(800, 100)

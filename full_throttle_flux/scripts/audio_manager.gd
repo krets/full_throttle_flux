@@ -71,6 +71,8 @@ const SFX_LINE_CROSS := "res://sounds/ambient/line_cross.wav"
 
 @export_group("Music Settings")
 @export var music_crossfade_time := 1.0
+## Target volume for music in dB (0 = full, -6 = half perceived loudness)
+@export var music_volume_db := -15.0
 
 # ============================================================================
 # AUDIO PLAYERS
@@ -109,14 +111,22 @@ func _create_music_players() -> void:
 	_music_player_a = AudioStreamPlayer.new()
 	_music_player_a.name = "MusicPlayerA"
 	_music_player_a.bus = BUS_MASTER  # Use Master until Music bus is created
+	_music_player_a.volume_db = music_volume_db
 	add_child(_music_player_a)
 	
 	_music_player_b = AudioStreamPlayer.new()
 	_music_player_b.name = "MusicPlayerB"
 	_music_player_b.bus = BUS_MASTER
+	_music_player_b.volume_db = music_volume_db
 	add_child(_music_player_b)
 	
 	_active_music_player = _music_player_a
+
+## Set music volume in dB (0.0 = full, -6.0 = half, -12.0 = quarter)
+func set_music_volume_db(volume_db: float) -> void:
+	music_volume_db = volume_db
+	_music_player_a.volume_db = volume_db
+	_music_player_b.volume_db = volume_db
 
 func _create_sound_pools() -> void:
 	# UI sound pool
@@ -155,16 +165,20 @@ func _preload_sound(path: String) -> void:
 func play_music(path: String, crossfade := true) -> void:
 	if not ResourceLoader.exists(path):
 		print("AudioManager: Music file not found: ", path)
+		# Stop current music since we can't play the new one
+		stop_music(crossfade)
 		return
 	
 	var stream = load(path) as AudioStream
 	if not stream:
+		stop_music(crossfade)
 		return
 	
 	if crossfade and _active_music_player.playing:
 		_crossfade_to(stream)
 	else:
 		_active_music_player.stream = stream
+		_active_music_player.volume_db = music_volume_db
 		_active_music_player.play()
 
 func _crossfade_to(new_stream: AudioStream) -> void:
@@ -178,7 +192,7 @@ func _crossfade_to(new_stream: AudioStream) -> void:
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(old_player, "volume_db", -80.0, music_crossfade_time)
-	tween.tween_property(new_player, "volume_db", 0.0, music_crossfade_time)
+	tween.tween_property(new_player, "volume_db", music_volume_db, music_crossfade_time)
 	tween.set_parallel(false)
 	tween.tween_callback(func(): old_player.stop())
 	
@@ -191,7 +205,7 @@ func stop_music(fade_out := true) -> void:
 	if fade_out:
 		var tween = create_tween()
 		tween.tween_property(_active_music_player, "volume_db", -80.0, music_crossfade_time)
-		tween.tween_callback(func(): _active_music_player.stop(); _active_music_player.volume_db = 0.0)
+		tween.tween_callback(func(): _active_music_player.stop(); _active_music_player.volume_db = music_volume_db)
 	else:
 		_active_music_player.stop()
 
@@ -247,51 +261,50 @@ func _play_from_pool(pool: Array[AudioStreamPlayer], path: String, volume_db: fl
 # ============================================================================
 
 func play_hover() -> void:
-	play_ui_sound(SFX_UI_HOVER, -15.0)      # ← volume in dB
+	play_ui_sound(SFX_UI_HOVER, -6.0)
 
 func play_select() -> void:
-	play_ui_sound(SFX_UI_SELECT, -15.0)      # ← volume in dB
+	play_ui_sound(SFX_UI_SELECT)
 
 func play_back() -> void:
-	play_ui_sound(SFX_UI_BACK, -15.0)        # ← volume in dB
+	play_ui_sound(SFX_UI_BACK)
 
 func play_pause() -> void:
-	play_ui_sound(SFX_UI_PAUSE, -15.0)       # ← volume in dB
+	play_ui_sound(SFX_UI_PAUSE)
 
 func play_resume() -> void:
-	play_ui_sound(SFX_UI_RESUME, -8.0)      # ← volume in dB
+	play_ui_sound(SFX_UI_RESUME)
 
 func play_keystroke() -> void:
-	play_ui_sound(SFX_UI_KEYSTROKE, -3.0, randf_range(0.95, 1.05))  # ← volume, pitch
-
+	play_ui_sound(SFX_UI_KEYSTROKE, -3.0, randf_range(0.95, 1.05))
 
 # ============================================================================
 # CONVENIENCE METHODS FOR RACE SOUNDS
 # ============================================================================
 
 func play_countdown_beep() -> void:
-	play_sfx(SFX_COUNTDOWN_BEEP, 3.0)      # ← volume in dB
+	play_sfx(SFX_COUNTDOWN_BEEP)
 
 func play_countdown_go() -> void:
-	play_sfx(SFX_COUNTDOWN_GO, 3.0)        # ← volume in dB
+	play_sfx(SFX_COUNTDOWN_GO, 3.0)
 
 func play_lap_complete() -> void:
-	play_sfx(SFX_LAP_COMPLETE, 0.0)        # ← volume in dB
+	play_sfx(SFX_LAP_COMPLETE)
 
 func play_final_lap() -> void:
-	play_sfx(SFX_FINAL_LAP, 3.0)           # ← volume in dB
+	play_sfx(SFX_FINAL_LAP, 3.0)
 
 func play_race_finish() -> void:
-	play_sfx(SFX_RACE_FINISH, 0.0)         # ← volume in dB
+	play_sfx(SFX_RACE_FINISH)
 
 func play_wrong_way() -> void:
-	play_sfx(SFX_WRONG_WAY, -8.0)           # ← volume in dB
+	play_sfx(SFX_WRONG_WAY)
 
 func play_new_record() -> void:
-	play_sfx(SFX_NEW_RECORD, 0.0)          # ← volume in dB
+	play_sfx(SFX_NEW_RECORD)
 
 func play_line_cross() -> void:
-	play_sfx(SFX_LINE_CROSS, -3.0)         # ← volume in dB
+	play_sfx(SFX_LINE_CROSS, -3.0)
 
 # ============================================================================
 # VOLUME HELPERS

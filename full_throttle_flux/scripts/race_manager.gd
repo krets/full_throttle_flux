@@ -77,15 +77,19 @@ func start_countdown() -> void:
 func _run_countdown() -> void:
 	await get_tree().create_timer(1.0).timeout
 	countdown_tick.emit(3)
+	AudioManager.play_countdown_beep()
 	
 	await get_tree().create_timer(1.0).timeout
 	countdown_tick.emit(2)
+	AudioManager.play_countdown_beep()
 	
 	await get_tree().create_timer(1.0).timeout
 	countdown_tick.emit(1)
+	AudioManager.play_countdown_beep()
 	
 	await get_tree().create_timer(1.0).timeout
 	countdown_tick.emit(0)  # GO!
+	AudioManager.play_countdown_go()
 	
 	_start_race()
 
@@ -99,6 +103,9 @@ func _start_race() -> void:
 	
 	race_start_time = Time.get_ticks_msec() / 1000.0
 	lap_start_time = race_start_time
+	
+	# Start race music
+	AudioManager.play_race_music()
 	
 	race_started.emit()
 

@@ -88,8 +88,13 @@ target_position = Vector3(0, -6, 0)
 script = ExtResource("5_5iw0i")
 ship = NodePath("..")
 engine_base_volume = 5.0
-boost_pitch_duration = 5.0
-boost_layer_volume = 50.0
+engine_max_pitch = 1.5
+boost_pitch_duration = 4.0
+boost_layer_volume = 20.0
+airbrake_pitch_strain = 0.05
+wind_min_speed_ratio = 0.3
+wind_max_volume = -12.0
+wall_hit_volume = -10.0
 metadata/_custom_type_script = "uid://d4f1mpwy8pny2"
 
 [node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("ship")]
