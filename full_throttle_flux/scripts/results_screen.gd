@@ -64,7 +64,13 @@ func _create_ui() -> void:
 	add_child(buttons_container)
 
 func _on_race_finished(total_time: float, best_lap: float) -> void:
+	# Play race finish sound
+	AudioManager.play_race_finish()
+	
 	await get_tree().create_timer(2.0).timeout
+	
+	# Switch to results music
+	AudioManager.play_results_music()
 	
 	visible = true
 	_show_stats(total_time, best_lap)
@@ -140,6 +146,9 @@ func _show_initials_entry() -> void:
 	initials_container.visible = true
 	current_initials = ""
 	
+	# Play new record fanfare
+	AudioManager.play_new_record()
+	
 	# Clear previous content
 	for child in initials_container.get_children():
 		child.queue_free()
@@ -196,6 +205,7 @@ func _input(event: InputEvent) -> void:
 	# Handle accept action (ENTER or gamepad A)
 	if event.is_action_pressed("ui_accept"):
 		if current_initials.length() >= 1:  # At least one letter
+			AudioManager.play_select()
 			_submit_initials()
 		return
 	
@@ -205,14 +215,17 @@ func _input(event: InputEvent) -> void:
 		if key == KEY_BACKSPACE:
 			if current_initials.length() > 0:
 				current_initials = current_initials.substr(0, current_initials.length() - 1)
+				AudioManager.play_keystroke()
 				_update_initials_display()
 		elif event.unicode >= 65 and event.unicode <= 90:  # A-Z
 			if current_initials.length() < max_initials_length:
 				current_initials += char(event.unicode)
+				AudioManager.play_keystroke()
 				_update_initials_display()
 		elif event.unicode >= 97 and event.unicode <= 122:  # a-z
 			if current_initials.length() < max_initials_length:
 				current_initials += char(event.unicode - 32)  # Convert to uppercase
+				AudioManager.play_keystroke()
 				_update_initials_display()
 
 func _update_initials_display() -> void:
@@ -294,6 +307,7 @@ func _show_leaderboards() -> void:
 	retry_button.add_theme_font_size_override("font_size", 28)
 	retry_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	retry_button.pressed.connect(_on_retry_pressed)
+	retry_button.focus_entered.connect(_on_button_focus)
 	buttons_container.add_child(retry_button)
 	
 	var quit_button = Button.new()
@@ -302,6 +316,7 @@ func _show_leaderboards() -> void:
 	quit_button.add_theme_font_size_override("font_size", 28)
 	quit_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	quit_button.pressed.connect(_on_quit_pressed)
+	quit_button.focus_entered.connect(_on_button_focus)
 	buttons_container.add_child(quit_button)
 	
 	# Set up button navigation
@@ -342,10 +357,15 @@ func _populate_leaderboard(parent: VBoxContainer, leaderboard: Array[Dictionary]
 		
 		parent.add_child(entry_label)
 
+func _on_button_focus() -> void:
+	AudioManager.play_hover()
+
 func _on_retry_pressed() -> void:
+	AudioManager.play_select()
 	RaceManager.reset_race()
 	get_tree().reload_current_scene()
 
 func _on_quit_pressed() -> void:
+	AudioManager.play_select()
 	RaceManager.reset_race()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")

@@ -199,6 +199,16 @@ class_name AGShip2097
 @export var shake_speed_threshold := 20.0
 
 # ============================================================================
+# AUDIO PARAMETERS
+# ============================================================================
+
+@export_group("Audio")
+
+## Reference to the ship's audio controller.
+## If not set, audio features will be disabled.
+@export var audio_controller: ShipAudioController
+
+# ============================================================================
 # NODE REFERENCES
 # ============================================================================
 
@@ -232,6 +242,11 @@ var visual_pitch := 0.0   # Nose up/down visual tilt
 var visual_roll := 0.0    # Banking visual tilt
 var visual_accel_pitch := 0.0  # Smoothed acceleration pitch feedback
 
+# Wall scraping state for audio
+var _is_scraping_wall := false
+var _scrape_timer := 0.0
+const SCRAPE_TIMEOUT := 0.1  # Time after last collision to stop scrape sound
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -243,11 +258,28 @@ func _ready() -> void:
 	visual_roll = 0.0
 	visual_accel_pitch = 0.0
 	_setup_hover_ray()
+	_setup_audio_controller()
 
 func _setup_hover_ray() -> void:
 	if hover_ray:
 		hover_ray.target_position = Vector3.DOWN * (hover_height * 3.0)
 		hover_ray.collision_mask = 1  # Track layer only
+
+func _setup_audio_controller() -> void:
+	# If no audio controller assigned, try to find one as a child
+	if not audio_controller:
+		audio_controller = get_node_or_null("ShipAudioController")
+	
+	# If still not found, create one automatically
+	if not audio_controller:
+		audio_controller = ShipAudioController.new()
+		audio_controller.name = "ShipAudioController"
+		add_child(audio_controller)
+		print("AGShip2097: Auto-created ShipAudioController")
+	
+	# Set the ship reference on the audio controller
+	if audio_controller:
+		audio_controller.ship = self
 
 # ============================================================================
 # MAIN PHYSICS LOOP
@@ -268,6 +300,7 @@ func _physics_process(delta: float) -> void:
 	
 	_handle_collisions()
 	_update_visuals(delta)
+	_update_scrape_audio(delta)
 
 # ============================================================================
 # INPUT HANDLING
@@ -542,6 +575,8 @@ func _align_to_track(delta: float) -> void:
 # ============================================================================
 
 func _handle_collisions() -> void:
+	var had_wall_collision := false
+	
 	for i in get_slide_collision_count():
 		var collision = get_slide_collision(i)
 		var normal = collision.get_normal()
@@ -549,6 +584,23 @@ func _handle_collisions() -> void:
 		# Check if this is a wall (mostly horizontal normal)
 		if abs(normal.y) < 0.5:
 			_handle_wall_collision(normal)
+			had_wall_collision = true
+	
+	# Update scrape state
+	if had_wall_collision:
+		_is_scraping_wall = true
+		_scrape_timer = SCRAPE_TIMEOUT
+		if audio_controller:
+			audio_controller.start_wall_scrape()
+			audio_controller.update_wall_scrape_intensity(velocity.length())
+
+func _update_scrape_audio(delta: float) -> void:
+	if _is_scraping_wall:
+		_scrape_timer -= delta
+		if _scrape_timer <= 0:
+			_is_scraping_wall = false
+			if audio_controller:
+				audio_controller.stop_wall_scrape()
 
 func _handle_wall_collision(wall_normal: Vector3) -> void:
 	var impact_speed = velocity.length()
@@ -571,6 +623,10 @@ func _handle_wall_collision(wall_normal: Vector3) -> void:
 		# Apply shake with intensity based on impact
 		var final_intensity = shake_intensity * speed_ratio * 2.0  # 2.0 = max shake amount
 		camera.apply_shake(final_intensity)
+	
+	# Play wall hit sound
+	if audio_controller and impact_speed > shake_speed_threshold:
+		audio_controller.play_wall_hit(impact_speed)
 
 # ============================================================================
 # VISUAL FEEDBACK
@@ -616,6 +672,7 @@ func get_debug_info() -> String:
 	return "Speed: %.0f / %.0f\nGrip: %.1f\nGrounded: %s\nAirbrake: %s" % [
 		velocity.length(), max_speed, current_grip, is_grounded, is_airbraking
 	]
+
 # ============================================================================
 ## EXTERNAL FORCES (Boost Pads, etc.)
 # ============================================================================
@@ -640,3 +697,7 @@ func apply_boost(amount: float) -> void:
 			forward = forward.normalized()
 	
 	velocity += forward * amount
+	
+	# Trigger boost audio effect
+	if audio_controller:
+		audio_controller.trigger_boost()

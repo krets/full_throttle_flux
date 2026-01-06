@@ -12,6 +12,11 @@ func _ready() -> void:
 	_create_ui()
 	_connect_signals()
 	_setup_focus()
+	_start_music()
+
+func _start_music() -> void:
+	# Start menu music
+	AudioManager.play_menu_music()
 
 func _create_ui() -> void:
 	# Title
@@ -57,10 +62,13 @@ func _create_menu_button(text: String, parent: Control) -> Button:
 func _connect_signals() -> void:
 	if start_button:
 		start_button.pressed.connect(_on_start_pressed)
+		start_button.focus_entered.connect(_on_button_focus)
 	if leaderboard_button:
 		leaderboard_button.pressed.connect(_on_leaderboard_pressed)
+		leaderboard_button.focus_entered.connect(_on_button_focus)
 	if quit_button:
 		quit_button.pressed.connect(_on_quit_pressed)
+		quit_button.focus_entered.connect(_on_button_focus)
 
 func _setup_focus() -> void:
 	# Set up focus navigation chain
@@ -77,11 +85,21 @@ func _setup_focus() -> void:
 		# Set initial focus to start button
 		start_button.grab_focus()
 
+func _on_button_focus() -> void:
+	AudioManager.play_hover()
+
 func _on_start_pressed() -> void:
+	AudioManager.play_select()
+	# Small delay to let sound play before scene change
+	await get_tree().create_timer(0.1).timeout
 	get_tree().change_scene_to_file("res://scenes/time_trial_01.tscn")
 
 func _on_leaderboard_pressed() -> void:
+	AudioManager.play_select()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().change_scene_to_file("res://scenes/leaderboard_screen.tscn")
 
 func _on_quit_pressed() -> void:
+	AudioManager.play_select()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit()

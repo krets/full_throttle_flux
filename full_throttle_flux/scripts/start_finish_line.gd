@@ -27,6 +27,9 @@ class_name StartFinishLine
 ## Enable detailed debug output
 @export var debug_enabled := true
 
+# Audio player for line cross sound
+var _audio_player: AudioStreamPlayer3D
+
 # Internal state
 var _race_started := false
 var _first_crossing_done := false  # Has the ship crossed the line to "start" lap 1?
@@ -45,6 +48,20 @@ func _ready() -> void:
 	
 	# Update visual material
 	_update_visual_material()
+	
+	# Setup audio
+	_setup_audio()
+
+func _setup_audio() -> void:
+	_audio_player = AudioStreamPlayer3D.new()
+	_audio_player.name = "LineCrossPlayer"
+	_audio_player.max_distance = 80.0
+	_audio_player.volume_db = -3.0
+	add_child(_audio_player)
+	
+	# Load the sound
+	if ResourceLoader.exists(AudioManager.SFX_LINE_CROSS):
+		_audio_player.stream = load(AudioManager.SFX_LINE_CROSS)
 
 func _on_race_started() -> void:
 	_race_started = true
@@ -118,12 +135,14 @@ func _handle_forward_crossing() -> void:
 		# First crossing - this "starts" lap 1, doesn't complete anything
 		_first_crossing_done = true
 		_play_crossing_effect()
+		_play_crossing_sound()
 		print("StartFinishLine: *** First crossing - Lap 1 STARTED ***")
 		return
 	
 	if _penalty_mode:
 		# Ship went wrong way earlier, this crossing just clears the penalty
 		_penalty_mode = false
+		_play_crossing_sound()
 		print("StartFinishLine: *** Penalty CLEARED - complete another lap to count ***")
 		return
 	
@@ -131,6 +150,14 @@ func _handle_forward_crossing() -> void:
 	print("StartFinishLine: *** LAP COMPLETE! ***")
 	RaceManager.complete_lap()
 	_play_crossing_effect()
+	_play_crossing_sound()
+	
+	# Play lap complete sound via AudioManager
+	AudioManager.play_lap_complete()
+	
+	# Check if this was the final lap warning (entering last lap)
+	if RaceManager.current_lap == RaceManager.total_laps:
+		AudioManager.play_final_lap()
 
 func _handle_wrong_way_crossing() -> void:
 	if not _first_crossing_done:
@@ -144,10 +171,16 @@ func _handle_wrong_way_crossing() -> void:
 	if not _penalty_mode:
 		_penalty_mode = true
 		RaceManager.wrong_way_warning.emit()
+		AudioManager.play_wrong_way()
 		print("StartFinishLine: *** WRONG WAY - Penalty activated! ***")
 	else:
 		if debug_enabled:
 			print("StartFinishLine: Wrong way (already in penalty mode)")
+
+func _play_crossing_sound() -> void:
+	if _audio_player and _audio_player.stream:
+		_audio_player.pitch_scale = randf_range(0.98, 1.02)
+		_audio_player.play()
 
 func _play_crossing_effect() -> void:
 	var line_mesh = get_node_or_null("LineMesh")

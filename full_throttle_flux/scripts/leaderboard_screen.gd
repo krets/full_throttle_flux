@@ -83,6 +83,7 @@ func _create_ui() -> void:
 	back_button.add_theme_font_size_override("font_size", 32)
 	back_button.focus_mode = Control.FOCUS_ALL  # Enable focus for navigation
 	back_button.pressed.connect(_on_back_pressed)
+	back_button.focus_entered.connect(_on_button_focus)
 
 func _setup_focus() -> void:
 	# Set initial focus to back button
@@ -125,5 +126,9 @@ func _populate_leaderboard(parent: VBoxContainer, leaderboard: Array[Dictionary]
 		
 		parent.add_child(entry_label)
 
+func _on_button_focus() -> void:
+	AudioManager.play_hover()
+
 func _on_back_pressed() -> void:
+	AudioManager.play_back()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")

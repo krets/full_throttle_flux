@@ -226,6 +226,7 @@ func _create_controls_popup() -> void:
 	controls_close_button.add_theme_font_size_override("font_size", 24)
 	controls_close_button.focus_mode = Control.FOCUS_ALL
 	controls_close_button.pressed.connect(_on_controls_close_pressed)
+	controls_close_button.focus_entered.connect(_on_button_focus)
 	vbox.add_child(controls_close_button)
 
 func _add_control_line(parent: VBoxContainer, key: String, action: String) -> void:
@@ -252,10 +253,19 @@ func _add_control_line(parent: VBoxContainer, key: String, action: String) -> vo
 
 func _connect_signals() -> void:
 	resume_button.pressed.connect(_on_resume_pressed)
+	resume_button.focus_entered.connect(_on_button_focus)
+	
 	restart_button.pressed.connect(_on_restart_pressed)
+	restart_button.focus_entered.connect(_on_button_focus)
+	
 	controls_button.pressed.connect(_on_controls_pressed)
+	controls_button.focus_entered.connect(_on_button_focus)
+	
 	quit_button.pressed.connect(_on_quit_pressed)
+	quit_button.focus_entered.connect(_on_button_focus)
+	
 	debug_toggle_button.pressed.connect(_on_debug_toggle_pressed)
+	debug_toggle_button.focus_entered.connect(_on_button_focus)
 
 func _setup_focus() -> void:
 	# Set up focus navigation chain
@@ -290,11 +300,15 @@ func _input(event: InputEvent) -> void:
 		else:
 			show_pause()
 
+func _on_button_focus() -> void:
+	AudioManager.play_hover()
+
 func show_pause() -> void:
 	visible = true
 	controls_popup.visible = false
 	_update_debug_button_text()
 	RaceManager.pause_race()
+	AudioManager.play_pause()
 	
 	# Set focus to resume button when pause menu appears
 	if resume_button:
@@ -306,10 +320,12 @@ func hide_pause() -> void:
 	RaceManager.resume_race()
 
 func _on_resume_pressed() -> void:
+	AudioManager.play_resume()
 	hide_pause()
 	resume_requested.emit()
 
 func _on_restart_pressed() -> void:
+	AudioManager.play_select()
 	visible = false
 	controls_popup.visible = false
 	get_tree().paused = false
@@ -318,6 +334,7 @@ func _on_restart_pressed() -> void:
 	get_tree().reload_current_scene()
 
 func _on_controls_pressed() -> void:
+	AudioManager.play_select()
 	# Hide main menu, show controls popup
 	get_node("PanelContainer").visible = false
 	controls_popup.visible = true
@@ -327,6 +344,7 @@ func _on_controls_pressed() -> void:
 		controls_close_button.grab_focus()
 
 func _on_controls_close_pressed() -> void:
+	AudioManager.play_back()
 	# Hide controls popup, show main menu
 	controls_popup.visible = false
 	get_node("PanelContainer").visible = true
@@ -336,6 +354,7 @@ func _on_controls_close_pressed() -> void:
 		controls_button.grab_focus()
 
 func _on_quit_pressed() -> void:
+	AudioManager.play_select()
 	visible = false
 	controls_popup.visible = false
 	get_tree().paused = false
@@ -344,6 +363,7 @@ func _on_quit_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_debug_toggle_pressed() -> void:
+	AudioManager.play_select()
 	if debug_hud:
 		debug_hud.toggle_visibility()
 		_update_debug_button_text()

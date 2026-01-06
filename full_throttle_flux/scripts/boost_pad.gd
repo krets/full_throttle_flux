@@ -28,9 +28,20 @@ class_name BoostPad
 ## Pulse speed (cycles per second).
 @export var pulse_speed := 2.0
 
+@export_group("Audio")
+
+## Volume of the boost surge sound (dB)
+@export var boost_sound_volume := 0.0
+
+## Path to boost surge sound
+const SFX_BOOST_SURGE := "res://sounds/ship/boost_surge.wav"
+
 # Internal state
 var _cooldown_timers: Dictionary = {}  # ship_id -> time_remaining
 var _base_light_energy: float
+
+# Audio player
+var _audio_player: AudioStreamPlayer3D
 
 @onready var glow_light: OmniLight3D = $GlowLight
 @onready var chevron_container: Node3D = $ChevronMesh
@@ -47,6 +58,20 @@ func _ready() -> void:
 	
 	# Apply color to chevron material
 	_update_chevron_material()
+	
+	# Create audio player
+	_setup_audio()
+
+func _setup_audio() -> void:
+	_audio_player = AudioStreamPlayer3D.new()
+	_audio_player.name = "BoostSurgePlayer"
+	_audio_player.max_distance = 50.0
+	_audio_player.volume_db = boost_sound_volume
+	add_child(_audio_player)
+	
+	# Load the sound
+	if ResourceLoader.exists(SFX_BOOST_SURGE):
+		_audio_player.stream = load(SFX_BOOST_SURGE)
 
 func _process(delta: float) -> void:
 	# Update cooldown timers
@@ -79,7 +104,7 @@ func _on_body_entered(body: Node3D) -> void:
 		print("BoostPad: Applying boost of ", boost_strength, " to ship")
 		print("BoostPad: Ship velocity BEFORE: ", ship.velocity, " (", ship.velocity.length(), ")")
 		
-		# Apply boost
+		# Apply boost (this also triggers the ship's audio controller boost effect)
 		ship.apply_boost(boost_strength)
 		
 		print("BoostPad: Ship velocity AFTER: ", ship.velocity, " (", ship.velocity.length(), ")")
@@ -90,8 +115,16 @@ func _on_body_entered(body: Node3D) -> void:
 		
 		# Visual feedback
 		_play_activation_effect()
+		
+		# Play boost pad's own surge sound (positional at the pad location)
+		_play_boost_sound()
 	else:
 		print("BoostPad: Body is not AGShip2097, it's: ", body.get_class())
+
+func _play_boost_sound() -> void:
+	if _audio_player and _audio_player.stream:
+		_audio_player.pitch_scale = randf_range(0.95, 1.05)
+		_audio_player.play()
 
 func _play_activation_effect() -> void:
 	# Flash the light brighter momentarily
