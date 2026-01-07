@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name ResultsScreen
 
 ## Post-race results screen with stats, initial entry, and leaderboards
+## Music continues from race until player returns to menu
 
 enum State {
 	SHOWING_STATS,
@@ -64,13 +65,12 @@ func _create_ui() -> void:
 	add_child(buttons_container)
 
 func _on_race_finished(total_time: float, best_lap: float) -> void:
-	# Play race finish sound
+	# Play race finish sound (music keeps playing)
 	AudioManager.play_race_finish()
 	
 	await get_tree().create_timer(2.0).timeout
 	
-	# Switch to results music
-	AudioManager.play_results_music()
+	# NOTE: Music continues from the race - no change here
 	
 	visible = true
 	_show_stats(total_time, best_lap)
@@ -363,9 +363,12 @@ func _on_button_focus() -> void:
 func _on_retry_pressed() -> void:
 	AudioManager.play_select()
 	RaceManager.reset_race()
+	MusicPlaylistManager.stop_music(false)  # Stop race music
 	get_tree().reload_current_scene()
 
 func _on_quit_pressed() -> void:
 	AudioManager.play_select()
 	RaceManager.reset_race()
+	# Stop race music - menu will start its own shuffled music
+	MusicPlaylistManager.stop_music(false)
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")

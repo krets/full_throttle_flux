@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://c3o1bph5bwsau"]
+
+[ext_resource type="AudioStream" uid="uid://dkd66awbskeac" path="res://music/its_robo.ogg" id="1_a2n54"]
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_r80bw"]
+
+[resource]
+script = ExtResource("1_r80bw")
+audio_stream = ExtResource("1_a2n54")
+track_name = "It's Robo"

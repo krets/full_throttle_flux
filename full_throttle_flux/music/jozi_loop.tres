@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://4k47jnk4ggiy"]
+
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_hh0ah"]
+[ext_resource type="AudioStream" uid="uid://cgf2cyk1q4cbj" path="res://music/jozi_loop.ogg" id="1_stogj"]
+
+[resource]
+script = ExtResource("1_hh0ah")
+audio_stream = ExtResource("1_stogj")
+track_name = "Jozi Loop"
+artist = "I Need Music"

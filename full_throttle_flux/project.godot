@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 RaceManager="*res://scripts/race_manager.gd"
 AudioManager="*res://scripts/audio_manager.gd"
+MusicPlaylistManager="*res://scripts/music_playlist_manager.gd"
 
 [display]
 

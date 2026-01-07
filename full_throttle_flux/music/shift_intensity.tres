@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://f37wvoyf0qhg"]
+
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_poayk"]
+[ext_resource type="AudioStream" uid="uid://bh85btiun4jdp" path="res://music/shift_intensity.ogg" id="1_ukm10"]
+
+[resource]
+script = ExtResource("1_poayk")
+audio_stream = ExtResource("1_ukm10")
+track_name = "Shift Intensity"
+artist = "Ovani Sound"

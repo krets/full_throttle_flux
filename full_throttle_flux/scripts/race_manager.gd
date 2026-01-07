@@ -2,6 +2,7 @@ extends Node
 
 ## Central race management singleton
 ## Handles timing, lap tracking, leaderboards, and race state
+## NOTE: Music is now handled by MusicPlaylistManager, not here
 
 # ============================================================================
 # SIGNALS
@@ -104,8 +105,8 @@ func _start_race() -> void:
 	race_start_time = Time.get_ticks_msec() / 1000.0
 	lap_start_time = race_start_time
 	
-	# Start race music
-	AudioManager.play_race_music()
+	# NOTE: Music is now started by race_controller.gd via MusicPlaylistManager
+	# Do NOT call AudioManager.play_race_music() here
 	
 	race_started.emit()
 

@@ -2,13 +2,25 @@ extends Control
 class_name LeaderboardScreen
 
 ## Standalone leaderboard viewer (accessible from main menu)
+## Music continues from main menu
 
 var container: VBoxContainer
 var back_button: Button
 
+# Now Playing display instance
+var now_playing_display: NowPlayingDisplay
+
 func _ready() -> void:
 	_create_ui()
 	_setup_focus()
+	_setup_now_playing_display()
+	# Menu music should already be playing from main menu - no need to start it
+
+func _setup_now_playing_display() -> void:
+	# Add the NowPlayingDisplay to this scene
+	var display_scene = preload("res://scenes/now_playing_display.tscn")
+	now_playing_display = display_scene.instantiate()
+	add_child(now_playing_display)
 
 func _create_ui() -> void:
 	# Main container
@@ -131,4 +143,5 @@ func _on_button_focus() -> void:
 
 func _on_back_pressed() -> void:
 	AudioManager.play_back()
+	# Music keeps playing - main menu will pick it up
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")

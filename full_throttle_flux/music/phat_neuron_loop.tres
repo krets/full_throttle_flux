@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://cguo4nbl23xh3"]
+
+[ext_resource type="AudioStream" uid="uid://sy7t60kg5red" path="res://music/phat_neuron_loop.ogg" id="1_8nvn3"]
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_dumwk"]
+
+[resource]
+script = ExtResource("1_dumwk")
+audio_stream = ExtResource("1_8nvn3")
+track_name = "Phat Neuron Loop"
+artist = "I Need Music"

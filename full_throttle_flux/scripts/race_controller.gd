@@ -2,6 +2,7 @@ extends Node
 class_name RaceController
 
 ## Controls the race flow: countdown, ship locking, pause handling
+## Coordinates with MusicPlaylistManager for race music
 
 @export var ship: AGShip2097
 @export var pause_menu: PauseMenu
@@ -9,6 +10,9 @@ class_name RaceController
 var ship_locked := true
 var initial_ship_position: Vector3
 var initial_ship_rotation: Basis
+
+# Now Playing display instance
+var now_playing_display: NowPlayingDisplay
 
 func _ready() -> void:
 	# Store initial ship state
@@ -21,9 +25,18 @@ func _ready() -> void:
 	RaceManager.race_started.connect(_on_race_started)
 	RaceManager.countdown_tick.connect(_on_countdown_tick)
 	
+	# Add the NowPlayingDisplay to the race scene
+	_setup_now_playing_display()
+	
 	# Start countdown after a brief delay
 	await get_tree().create_timer(1.0).timeout
 	RaceManager.start_countdown()
+
+func _setup_now_playing_display() -> void:
+	# Add the NowPlayingDisplay to this scene
+	var display_scene = preload("res://scenes/now_playing_display.tscn")
+	now_playing_display = display_scene.instantiate()
+	get_parent().add_child(now_playing_display)
 
 func _physics_process(_delta: float) -> void:
 	if ship_locked and ship:
@@ -46,3 +59,6 @@ func _on_countdown_tick(number: int) -> void:
 func _on_race_started() -> void:
 	# Unlock ship
 	ship_locked = false
+	
+	# Start race music via the playlist manager
+	MusicPlaylistManager.start_race_music()

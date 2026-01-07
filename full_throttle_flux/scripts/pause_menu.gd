@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name PauseMenu
 
 ## In-game pause menu
+## Coordinates with MusicPlaylistManager for pausing music
 
 signal resume_requested
 signal restart_requested
@@ -308,6 +309,7 @@ func show_pause() -> void:
 	controls_popup.visible = false
 	_update_debug_button_text()
 	RaceManager.pause_race()
+	MusicPlaylistManager.pause_music()  # Pause the music
 	AudioManager.play_pause()
 	
 	# Set focus to resume button when pause menu appears
@@ -318,6 +320,7 @@ func hide_pause() -> void:
 	visible = false
 	controls_popup.visible = false
 	RaceManager.resume_race()
+	MusicPlaylistManager.resume_music()  # Resume the music
 
 func _on_resume_pressed() -> void:
 	AudioManager.play_resume()
@@ -330,6 +333,7 @@ func _on_restart_pressed() -> void:
 	controls_popup.visible = false
 	get_tree().paused = false
 	RaceManager.reset_race()
+	MusicPlaylistManager.stop_music(false)  # Stop music immediately
 	restart_requested.emit()
 	get_tree().reload_current_scene()
 
@@ -359,6 +363,7 @@ func _on_quit_pressed() -> void:
 	controls_popup.visible = false
 	get_tree().paused = false
 	RaceManager.reset_race()
+	MusicPlaylistManager.stop_music(false)  # Stop race music
 	quit_requested.emit()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 

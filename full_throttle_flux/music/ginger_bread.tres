@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://emxluu0c5giu"]
+
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_1gqwg"]
+[ext_resource type="AudioStream" uid="uid://v3vjhrlirvbd" path="res://music/ginger_bread.ogg" id="1_hwupj"]
+
+[resource]
+script = ExtResource("1_1gqwg")
+audio_stream = ExtResource("1_hwupj")
+track_name = "Ginger Bread"
+artist = "Ovani Sound"

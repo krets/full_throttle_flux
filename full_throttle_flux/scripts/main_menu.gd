@@ -2,21 +2,33 @@ extends Control
 class_name MainMenu
 
 ## Main menu for the racing game
+## Uses MusicPlaylistManager for shuffled music playback
 
 var title_label: Label
 var start_button: Button
 var leaderboard_button: Button
 var quit_button: Button
 
+# Now Playing display instance
+var now_playing_display: NowPlayingDisplay
+
 func _ready() -> void:
 	_create_ui()
 	_connect_signals()
 	_setup_focus()
+	_setup_now_playing_display()
 	_start_music()
 
 func _start_music() -> void:
-	# Start menu music
-	AudioManager.play_menu_music()
+	# Only start music if not already playing (e.g., coming from leaderboard screen)
+	if not MusicPlaylistManager.is_playing():
+		MusicPlaylistManager.start_menu_music()
+
+func _setup_now_playing_display() -> void:
+	# Add the NowPlayingDisplay to this scene
+	var display_scene = preload("res://scenes/now_playing_display.tscn")
+	now_playing_display = display_scene.instantiate()
+	add_child(now_playing_display)
 
 func _create_ui() -> void:
 	# Title
@@ -90,8 +102,12 @@ func _on_button_focus() -> void:
 
 func _on_start_pressed() -> void:
 	AudioManager.play_select()
-	# Small delay to let sound play before scene change
-	await get_tree().create_timer(0.1).timeout
+	
+	# Fade out menu music before transitioning to race
+	MusicPlaylistManager.fade_out_for_race()
+	
+	# Small delay to let sound play and music fade before scene change
+	await get_tree().create_timer(0.3).timeout
 	get_tree().change_scene_to_file("res://scenes/time_trial_01.tscn")
 
 func _on_leaderboard_pressed() -> void:

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=3 format=3 uid="uid://cpa0e02wov708"]
+
+[ext_resource type="AudioStream" uid="uid://by3afh5w0evg6" path="res://music/oh_my_days.ogg" id="1_84ll3"]
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_e773f"]
+
+[resource]
+script = ExtResource("1_e773f")
+audio_stream = ExtResource("1_84ll3")
+track_name = "Oh my Days"
+artist = "Ovani Sound"

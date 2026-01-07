@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="MusicTrack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/music_track.gd" id="1_script"]
+; To use this template:
+; 1. Copy this file and rename it (e.g., "track_01.tres")
+; 2. Change the audio_stream path below to your .ogg file
+; 3. Update track_name and artist
+; 4. Set use_in_menu and use_in_race flags as needed
+
+; Example (uncomment and modify):
+; [ext_resource type="AudioStream" path="res://music/my_song.ogg" id="2_audio"]
+
+[resource]
+script = ExtResource("1_script")
+; Uncomment the line below and change "2_audio" to match your audio resource id:
+; audio_stream = ExtResource("2_audio")
+track_name = "Track Title Here"
+artist = "Artist Name Here"
+use_in_menu = true
+use_in_race = true
