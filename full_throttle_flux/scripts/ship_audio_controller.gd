@@ -400,7 +400,7 @@ func play_wall_hit(impact_speed: float) -> void:
 		# Volume and pitch based on impact speed
 		var speed_factor = clamp(impact_speed / ship.max_speed, 0.0, 1.0)
 		_wall_hit.volume_db = wall_hit_volume + (speed_factor * 6.0)
-		_wall_hit.pitch_scale = lerp(0.8, 1.2, speed_factor)
+		_wall_hit.pitch_scale = lerp(-1, -0.5, speed_factor)
 		_wall_hit.play()
 
 func start_wall_scrape() -> void:

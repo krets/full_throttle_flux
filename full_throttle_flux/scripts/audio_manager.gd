@@ -162,16 +162,16 @@ func play_hover() -> void:
 	play_ui_sound(SFX_UI_HOVER, -6.0)
 
 func play_select() -> void:
-	play_ui_sound(SFX_UI_SELECT)
+	play_ui_sound(SFX_UI_SELECT, -10.0)
 
 func play_back() -> void:
-	play_ui_sound(SFX_UI_BACK)
+	play_ui_sound(SFX_UI_BACK, -10.0)
 
 func play_pause() -> void:
-	play_ui_sound(SFX_UI_PAUSE)
+	play_ui_sound(SFX_UI_PAUSE, -10.0)
 
 func play_resume() -> void:
-	play_ui_sound(SFX_UI_RESUME)
+	play_ui_sound(SFX_UI_RESUME, -10.0)
 
 func play_keystroke() -> void:
 	play_ui_sound(SFX_UI_KEYSTROKE, -3.0, randf_range(0.95, 1.05))
@@ -181,10 +181,10 @@ func play_keystroke() -> void:
 # ============================================================================
 
 func play_countdown_beep() -> void:
-	play_sfx(SFX_COUNTDOWN_BEEP)
+	play_sfx(SFX_COUNTDOWN_BEEP, -6.0)
 
 func play_countdown_go() -> void:
-	play_sfx(SFX_COUNTDOWN_GO, 3.0)
+	play_sfx(SFX_COUNTDOWN_GO, -6.0)
 
 func play_lap_complete() -> void:
 	play_sfx(SFX_LAP_COMPLETE)
