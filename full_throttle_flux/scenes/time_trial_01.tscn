@@ -61,6 +61,7 @@ transform = Transform3D(0.94983023, 0, -0.31276596, 0, 1, 0, 0.31276596, 0, 0.94
 collision_layer = 2
 script = ExtResource("3_nyw6o")
 max_speed = 120.0
+thrust_power = 65.0
 steer_speed = 1.345
 steer_slide = 10.0
 grip = 4.0
