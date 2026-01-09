@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7gj5o5ybaove"]
+[gd_scene load_steps=3 format=3 uid="uid://c7gj5o5ybaove"]
 
 [ext_resource type="Script" uid="uid://yn4r2ilehxym" path="res://scripts/main_menu.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bxtkj3re4k8vr" path="res://ui/FTF_logo_pink_v1.svg" id="2_ekxnf"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -19,3 +20,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.05, 0.15, 1)
+
+[node name="FtfLogoPinkV1" type="Sprite2D" parent="."]
+position = Vector2(949, 189.99994)
+scale = Vector2(0.6147061, 0.61470616)
+texture = ExtResource("2_ekxnf")
