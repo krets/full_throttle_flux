@@ -102,7 +102,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 20, -236)
 fov = 65.0
 script = ExtResource("5_rryc1")
 ship = NodePath("../AGShip2097")
-speed_zoom = 1.0
 follow_speed = 10.0
 base_fov = 70.0
 
