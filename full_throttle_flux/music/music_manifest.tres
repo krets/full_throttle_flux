@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MusicManifest" load_steps=11 format=3 uid="uid://music_manifest_main"]
+
+[ext_resource type="Script" path="res://scripts/music_manifest.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://b0mb570nkkybh" path="res://music/deceased_rodent.tres" id="2_track"]
+[ext_resource type="Resource" uid="uid://c6248xfxhxoje" path="res://music/future_tense.tres" id="3_track"]
+[ext_resource type="Resource" uid="uid://emxluu0c5giu" path="res://music/ginger_bread.tres" id="4_track"]
+[ext_resource type="Resource" uid="uid://dkx1eslg32ujb" path="res://music/hybrid.tres" id="5_track"]
+[ext_resource type="Resource" uid="uid://c3o1bph5bwsau" path="res://music/its_robo.tres" id="6_track"]
+[ext_resource type="Resource" uid="uid://4k47jnk4ggiy" path="res://music/jozi_loop.tres" id="7_track"]
+[ext_resource type="Resource" uid="uid://cpa0e02wov708" path="res://music/oh_my_days.tres" id="8_track"]
+[ext_resource type="Resource" uid="uid://cguo4nbl23xh3" path="res://music/phat_neuron_loop.tres" id="9_track"]
+[ext_resource type="Resource" uid="uid://f37wvoyf0qhg" path="res://music/shift_intensity.tres" id="10_track"]
+
+[resource]
+script = ExtResource("1_script")
+tracks = [ExtResource("2_track"), ExtResource("3_track"), ExtResource("4_track"), ExtResource("5_track"), ExtResource("6_track"), ExtResource("7_track"), ExtResource("8_track"), ExtResource("9_track"), ExtResource("10_track")]

@@ -4,6 +4,9 @@ extends Node
 ## Handles auto-discovery of music tracks, shuffled playback, and crossfading
 ## Emits signals for UI updates (now playing display)
 ## Volume is controlled via AudioManager.music_volume_linear
+##
+## NOTE: Uses a MusicManifest resource instead of directory scanning
+## because exported builds cannot iterate over res:// directories.
 
 # ============================================================================
 # SIGNALS
@@ -19,7 +22,7 @@ signal music_stopped()
 # CONFIGURATION
 # ============================================================================
 
-const MUSIC_FOLDER := "res://music/"
+const MUSIC_MANIFEST_PATH := "res://music/music_manifest.tres"
 
 @export_group("Playback Settings")
 ## Time for crossfade between tracks (seconds)
@@ -89,6 +92,30 @@ func _create_audio_players() -> void:
 func _discover_tracks() -> void:
 	_all_tracks.clear()
 	
+	# Load tracks from manifest (works in exported builds)
+	if ResourceLoader.exists(MUSIC_MANIFEST_PATH):
+		var manifest = load(MUSIC_MANIFEST_PATH) as MusicManifest
+		if manifest:
+			for track in manifest.tracks:
+				if track and track.is_valid():
+					_all_tracks.append(track)
+					print("MusicPlaylistManager: Loaded track: ", track.get_display_text())
+			print("MusicPlaylistManager: Found %d valid tracks from manifest" % _all_tracks.size())
+			return
+		else:
+			print("MusicPlaylistManager: ERROR - Manifest exists but failed to load as MusicManifest")
+	else:
+		print("MusicPlaylistManager: ERROR - Music manifest not found at: ", MUSIC_MANIFEST_PATH)
+	
+	# Fallback: try directory scanning (only works in editor, not in exports)
+	print("MusicPlaylistManager: Attempting fallback directory scan (editor only)...")
+	_discover_tracks_fallback()
+
+func _discover_tracks_fallback() -> void:
+	## Fallback method that scans the music directory.
+	## This ONLY works in the editor - exported builds will not find any tracks this way.
+	const MUSIC_FOLDER := "res://music/"
+	
 	var dir = DirAccess.open(MUSIC_FOLDER)
 	if not dir:
 		print("MusicPlaylistManager: Could not open music folder: ", MUSIC_FOLDER)
@@ -107,14 +134,14 @@ func _discover_tracks() -> void:
 				var track = resource as MusicTrack
 				if track.is_valid():
 					_all_tracks.append(track)
-					print("MusicPlaylistManager: Discovered track: ", track.get_display_text())
+					print("MusicPlaylistManager: Discovered track (fallback): ", track.get_display_text())
 				else:
 					print("MusicPlaylistManager: Invalid track (no audio): ", file_name)
 		
 		file_name = dir.get_next()
 	
 	dir.list_dir_end()
-	print("MusicPlaylistManager: Found %d valid tracks" % _all_tracks.size())
+	print("MusicPlaylistManager: Found %d valid tracks (fallback)" % _all_tracks.size())
 
 func _build_playlists() -> void:
 	_menu_tracks.clear()
