@@ -93,8 +93,8 @@ func _on_body_entered(body: Node3D) -> void:
 	print("BoostPad: body_entered triggered with: ", body.name)
 	
 	# Check if it's a ship
-	if body is AGShip2097:
-		var ship = body as AGShip2097
+	if body is ShipController:
+		var ship = body as ShipController
 		var ship_id = ship.get_instance_id()
 		
 		# Check cooldown

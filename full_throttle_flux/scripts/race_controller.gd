@@ -4,7 +4,7 @@ class_name RaceController
 ## Controls the race flow: countdown, ship locking, pause handling
 ## Coordinates with MusicPlaylistManager for race music
 
-@export var ship: AGShip2097
+@export var ship: ShipController
 @export var pause_menu: PauseMenu
 
 var ship_locked := true

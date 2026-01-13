@@ -29,7 +29,7 @@ const SFX_WIND_LOOP := "res://sounds/ship/wind_loop.wav"
 # ============================================================================
 
 @export_group("Ship Reference")
-@export var ship: AGShip2097
+@export var ship: CharacterBody3D
 
 @export_group("Engine Sound Settings")
 ## Base volume for engine sounds (dB)

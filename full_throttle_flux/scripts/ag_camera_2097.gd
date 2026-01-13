@@ -7,7 +7,7 @@ class_name AGCamera2097
 
 ## Reference to the ship being followed.
 ## Must be set for camera to function.
-@export var ship: AGShip2097
+@export var ship: ShipController
 
 @export_group("Position")
 

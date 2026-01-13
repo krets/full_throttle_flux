@@ -80,7 +80,7 @@ func _on_race_finished(_total_time: float, _best_lap: float) -> void:
 	_race_started = false
 
 func _on_body_entered(body: Node3D) -> void:
-	if not body is AGShip2097:
+	if not body is ShipController:
 		return
 	
 	if not _race_started:
@@ -94,7 +94,7 @@ func _on_body_entered(body: Node3D) -> void:
 	
 	_ship_inside = true
 	
-	var ship = body as AGShip2097
+	var ship = body as ShipController
 	
 	# Check cooldown
 	var current_time = Time.get_ticks_msec() / 1000.0
@@ -127,7 +127,7 @@ func _on_body_entered(body: Node3D) -> void:
 		_handle_wrong_way_crossing()
 
 func _on_body_exited(body: Node3D) -> void:
-	if not body is AGShip2097:
+	if not body is ShipController:
 		return
 	
 	_ship_inside = false

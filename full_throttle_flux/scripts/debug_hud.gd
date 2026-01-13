@@ -4,7 +4,7 @@ class_name DebugHUD
 ## Debug HUD showing real-time ship telemetry
 ## Can be toggled on/off via pause menu
 
-@export var ship: AGShip2097
+@export var ship: ShipController
 
 var debug_label: Label
 var is_visible_debug := false

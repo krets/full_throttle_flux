@@ -1,9 +1,10 @@
-[gd_scene load_steps=17 format=3 uid="uid://bml2byqjx44e3"]
+[gd_scene load_steps=18 format=3 uid="uid://bml2byqjx44e3"]
 
 [ext_resource type="Script" uid="uid://bdc2b6nx314lu" path="res://scripts/race_controller.gd" id="1_1djkb"]
 [ext_resource type="PackedScene" uid="uid://d1u5hhcgev84t" path="res://scenes/trackGeo.tscn" id="2_5iw0i"]
-[ext_resource type="Script" uid="uid://bjd0mrhgkkoew" path="res://scripts/ag_ship_2097.gd" id="3_nyw6o"]
+[ext_resource type="Script" uid="uid://s3b8psg6to1c" path="res://scripts/ships/ship_controller.gd" id="3_5iw0i"]
 [ext_resource type="PackedScene" uid="uid://du8cy2tcim5ko" path="res://assets/shipTest.glb" id="4_8171d"]
+[ext_resource type="Resource" path="res://resources/ships/default_racer.tres" id="4_nyw6o"]
 [ext_resource type="Script" uid="uid://d4f1mpwy8pny2" path="res://scripts/ship_audio_controller.gd" id="5_5iw0i"]
 [ext_resource type="Script" uid="uid://co7e31gm6i7fs" path="res://scripts/ag_camera_2097.gd" id="5_rryc1"]
 [ext_resource type="Script" uid="uid://crfocj0kfjqe6" path="res://scripts/hud_race.gd" id="6_pwacg"]
@@ -56,11 +57,11 @@ shadow_blur = 2.0
 [node name="Track" parent="." instance=ExtResource("2_5iw0i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.5, 0)
 
-[node name="AGShip2097" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
+[node name="AGShip2097" type="CharacterBody3D" parent="."]
 transform = Transform3D(0.94983023, 0, -0.31276596, 0, 1, 0, 0.31276596, 0, 0.94983023, -48.34865, 19.023623, -235.97458)
 collision_layer = 2
-script = ExtResource("3_nyw6o")
-camera = NodePath("../Camera3D")
+script = ExtResource("3_5iw0i")
+profile = ExtResource("4_nyw6o")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AGShip2097"]
 transform = Transform3D(0.585, 0, 0, 0, -2.5571161e-08, -0.585, 0, 0.585, -2.5571161e-08, 0, 0.4741478, 0.36390686)

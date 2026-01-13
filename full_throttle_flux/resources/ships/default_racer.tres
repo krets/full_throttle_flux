@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ShipProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ship_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+ship_id = "default_racer"
+display_name = "Default Racer"
+description = "A balanced ship suitable for all tracks. Good handling and speed."
+manufacturer = "Flux Industries"
+ship_scene = null
+max_speed = 120.0
+thrust_power = 65.0
+drag_coefficient = 0.992
+air_drag = 0.97
+steer_speed = 1.345
+steer_slide = 10.0
+grip = 4.0
+steer_curve_power = 2.5
+airbrake_turn_rate = 0.5
+airbrake_grip = 0.5
+airbrake_drag = 0.98
+airbrake_slip_falloff = 25.0
+hover_height = 2.0
+hover_stiffness = 65.0
+hover_damping = 5.5
+hover_force_max = 200.0
+track_align_speed = 8.0
+track_normal_smoothing = 0.15
+hover_rot_power = 20.0
+pitch_speed = 1.0
+pitch_return_speed = 2.0
+max_pitch_angle = 10.0
+wall_scrape_min_speed = 20.0
+wall_bounce_retain = 0.9
+wall_rotation_force = 1.5
+wall_friction = 0.9
+gravity = 25.0
+slope_gravity_factor = 0.8
+collision_shake_enabled = true
+shake_intensity = 0.3
+shake_speed_threshold = 20.0
