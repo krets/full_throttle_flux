@@ -97,10 +97,10 @@ func _create_mode() -> void:
 	match mode_id:
 		"time_trial":
 			current_mode = TimeTrialMode.new()
+			print("RaceLauncher: Created TimeTrialMode")
 		"endless":
-			# TODO: Create EndlessMode
-			current_mode = TimeTrialMode.new()  # Fallback for now
-			push_warning("RaceLauncher: Endless mode not implemented, using TimeTrialMode")
+			current_mode = EndlessMode.new()
+			print("RaceLauncher: Created EndlessMode")
 		_:
 			push_error("RaceLauncher: Unknown mode: %s" % mode_id)
 			_return_to_menu()

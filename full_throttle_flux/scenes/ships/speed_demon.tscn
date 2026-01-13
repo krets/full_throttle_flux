@@ -18,7 +18,7 @@ profile = ExtResource("2_lhcrk")
 transform = Transform3D(0.585, 0, 0, 0, -2.5571161e-08, -0.585, 0, 0.585, -2.5571161e-08, 0, 0.4741478, 0.36390686)
 shape = SubResource("CapsuleShape3D_ship")
 
-[node name="shipTest" parent="." instance=ExtResource("3_qy5gw")]
+[node name="ShipMesh" parent="." instance=ExtResource("3_qy5gw")]
 transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0)
 
 [node name="HoverRay" type="RayCast3D" parent="."]
