@@ -22,5 +22,5 @@ script = ExtResource("4_02she")
 metadata/_custom_type_script = "uid://do1bpsq8pkyxk"
 
 [node name="Slot1" type="Marker3D" parent="StartingGrid"]
-transform = Transform3D(-0.3815222, 0, -0.9243597, 0, 1, 0, 0.9243597, 0, -0.3815222, -3.3510475, -3, 7.9537964)
+transform = Transform3D(0.93969256, 0, -0.3420201, 0, 1, 0, 0.3420201, 0, 0.93969256, -3.3510475, -3, 7.9537964)
 gizmo_extents = 3.25

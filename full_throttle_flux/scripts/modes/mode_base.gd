@@ -139,13 +139,17 @@ func _spawn_ship() -> void:
 	# Load ship scene
 	var ship_scene_path = "res://scenes/ships/%s.tscn" % ship_profile.ship_id
 	if not ResourceLoader.exists(ship_scene_path):
-		# Fallback to default
+		push_warning("ModeBase: Ship scene not found at %s, trying default" % ship_scene_path)
 		ship_scene_path = "res://scenes/ships/default_racer.tscn"
+	
+	if not ResourceLoader.exists(ship_scene_path):
+		push_error("ModeBase: Could not find any ship scene!")
+		return
 	
 	var ship_scene = load(ship_scene_path)
 	ship_instance = ship_scene.instantiate()
 	
-	# Ensure ship has the correct profile
+	# Ensure ship has the correct profile (override what's in scene)
 	if ship_instance is ShipController:
 		ship_instance.profile = ship_profile
 	elif ship_instance.has_method("initialize_with_profile"):
@@ -176,22 +180,32 @@ func _setup_camera() -> void:
 		camera_instance = camera_scene.instantiate()
 		add_child(camera_instance)
 	else:
-		# Create default camera
-		camera_instance = Camera3D.new()
-		add_child(camera_instance)
-		
-		# Try to attach the AG camera script
+		# Load the AG camera script
 		var cam_script = load("res://scripts/ag_camera_2097.gd")
+		
 		if cam_script:
+			# Create camera and set script BEFORE adding to tree
+			camera_instance = Camera3D.new()
 			camera_instance.set_script(cam_script)
+			add_child(camera_instance)
+		else:
+			# Fallback: create basic follow camera
+			push_warning("ModeBase: AG camera script not found, using basic camera")
+			camera_instance = Camera3D.new()
+			add_child(camera_instance)
+			camera_instance.global_position = Vector3(0, 10, 20)
 	
 	# Point camera at ship
-	if camera_instance.has_method("set_target") or "ship" in camera_instance:
-		camera_instance.ship = ship_instance
-	
-	# Give ship reference to camera for shake effects
-	if ship_instance is ShipController:
-		ship_instance.camera = camera_instance
+	if ship_instance and camera_instance:
+		if "ship" in camera_instance:
+			camera_instance.ship = ship_instance
+			print("ModeBase: Camera assigned to ship")
+		else:
+			push_warning("ModeBase: Camera has no 'ship' property")
+		
+		# Give ship reference to camera for shake effects
+		if ship_instance is ShipController:
+			ship_instance.camera = camera_instance
 	
 	print("ModeBase: Camera setup complete")
 
@@ -210,10 +224,13 @@ func _setup_hud() -> void:
 			var scene = load(hud_path)
 			hud_instance = scene.instantiate()
 			add_child(hud_instance)
+		else:
+			push_warning("ModeBase: HUD scene not found at %s" % hud_path)
 	
 	# Connect HUD to ship
-	if hud_instance and "ship" in hud_instance:
-		hud_instance.ship = ship_instance
+	if hud_instance and ship_instance:
+		if "ship" in hud_instance:
+			hud_instance.ship = ship_instance
 	
 	print("ModeBase: HUD setup complete")
 

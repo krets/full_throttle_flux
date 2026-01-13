@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bat32e86vjkk0"]
+
+[ext_resource type="Script" uid="uid://calf60yx6tgof" path="res://scripts/race_launcher.gd" id="1_25bof"]
+
+[node name="RaceLauncher" type="Node"]
+script = ExtResource("1_25bof")

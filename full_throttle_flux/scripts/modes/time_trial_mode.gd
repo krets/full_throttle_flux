@@ -3,7 +3,7 @@ class_name TimeTrialMode
 
 ## Time Trial Mode
 ## Assembles track and ship, then coordinates with RaceManager for race flow.
-## Uses existing RaceManager for timing, lap tracking, and leaderboards.
+## Creates HUD, PauseMenu, DebugHUD, ResultsScreen inline (matching time_trial_01 structure).
 
 # ============================================================================
 # MODE CONFIGURATION
@@ -12,20 +12,23 @@ class_name TimeTrialMode
 @export var num_laps: int = 3
 
 # ============================================================================
-# ADDITIONAL SCENE REFERENCES
+# UI INSTANCES
 # ============================================================================
 
-var pause_menu_instance: Node
-var results_screen_instance: Node
-var now_playing_instance: Node
+var race_hud: CanvasLayer
+var debug_hud: CanvasLayer
+var pause_menu: CanvasLayer
+var results_screen: CanvasLayer
+var now_playing_display: Node
 
 # ============================================================================
-# PACKED SCENES FOR UI
+# SCRIPTS (loaded once)
 # ============================================================================
 
-@export var pause_menu_scene: PackedScene
-@export var results_screen_scene: PackedScene
-@export var now_playing_scene: PackedScene
+var hud_race_script: Script
+var debug_hud_script: Script
+var pause_menu_script: Script
+var results_screen_script: Script
 
 # ============================================================================
 # OVERRIDES
@@ -47,8 +50,14 @@ func get_hud_config() -> Dictionary:
 # ============================================================================
 
 func _ready() -> void:
-	# Don't auto-setup, wait for explicit call
-	pass
+	# Preload scripts
+	_load_ui_scripts()
+
+func _load_ui_scripts() -> void:
+	hud_race_script = load("res://scripts/hud_race.gd")
+	debug_hud_script = load("res://scripts/debug_hud.gd")
+	pause_menu_script = load("res://scripts/pause_menu.gd")
+	results_screen_script = load("res://scripts/results_screen.gd")
 
 func setup_race() -> void:
 	# Configure RaceManager for time trial
@@ -62,10 +71,13 @@ func setup_race() -> void:
 		num_laps = track_profile.default_laps
 		RaceManager.total_laps = num_laps
 	
-	# Call parent setup (loads track, spawns ship, etc.)
+	# Call parent setup (loads track, spawns ship, camera)
+	# Note: Parent also tries to load HUD, we'll override that
 	await super.setup_race()
 	
-	# Setup additional UI
+	# Setup our UI elements (replaces parent's HUD setup)
+	_setup_race_hud()
+	_setup_debug_hud()
 	_setup_pause_menu()
 	_setup_results_screen()
 	_setup_now_playing()
@@ -91,41 +103,78 @@ func _connect_race_signals() -> void:
 	RaceManager.lap_completed.connect(_on_lap_completed)
 
 # ============================================================================
-# UI SETUP
+# UI SETUP (creates nodes inline like time_trial_01.tscn)
 # ============================================================================
 
-func _setup_pause_menu() -> void:
-	if pause_menu_scene:
-		pause_menu_instance = pause_menu_scene.instantiate()
-	else:
-		var path = "res://scenes/pause_menu.tscn"
-		if ResourceLoader.exists(path):
-			pause_menu_instance = load(path).instantiate()
+func _setup_race_hud() -> void:
+	# Remove parent's HUD if it loaded one
+	if hud_instance:
+		hud_instance.queue_free()
+		hud_instance = null
 	
-	if pause_menu_instance:
-		add_child(pause_menu_instance)
+	# Create HUD CanvasLayer with script
+	race_hud = CanvasLayer.new()
+	race_hud.name = "HUD"
+	
+	if hud_race_script:
+		race_hud.set_script(hud_race_script)
+	
+	add_child(race_hud)
+	
+	# Connect to ship
+	if ship_instance and "ship" in race_hud:
+		race_hud.ship = ship_instance
+	
+	print("TimeTrialMode: Race HUD created")
+
+func _setup_debug_hud() -> void:
+	debug_hud = CanvasLayer.new()
+	debug_hud.name = "DebugHUD"
+	
+	if debug_hud_script:
+		debug_hud.set_script(debug_hud_script)
+	
+	add_child(debug_hud)
+	
+	# Connect to ship
+	if ship_instance and "ship" in debug_hud:
+		debug_hud.ship = ship_instance
+	
+	print("TimeTrialMode: Debug HUD created")
+
+func _setup_pause_menu() -> void:
+	pause_menu = CanvasLayer.new()
+	pause_menu.name = "PauseMenu"
+	
+	if pause_menu_script:
+		pause_menu.set_script(pause_menu_script)
+	
+	add_child(pause_menu)
+	
+	# Connect debug_hud reference if the script expects it
+	if debug_hud and "debug_hud" in pause_menu:
+		pause_menu.debug_hud = debug_hud
+	
+	print("TimeTrialMode: Pause menu created")
 
 func _setup_results_screen() -> void:
-	if results_screen_scene:
-		results_screen_instance = results_screen_scene.instantiate()
-	else:
-		var path = "res://scenes/results_screen.tscn"
-		if ResourceLoader.exists(path):
-			results_screen_instance = load(path).instantiate()
+	results_screen = CanvasLayer.new()
+	results_screen.name = "ResultsScreen"
 	
-	if results_screen_instance:
-		add_child(results_screen_instance)
+	if results_screen_script:
+		results_screen.set_script(results_screen_script)
+	
+	add_child(results_screen)
+	
+	print("TimeTrialMode: Results screen created")
 
 func _setup_now_playing() -> void:
-	if now_playing_scene:
-		now_playing_instance = now_playing_scene.instantiate()
-	else:
-		var path = "res://scenes/now_playing_display.tscn"
-		if ResourceLoader.exists(path):
-			now_playing_instance = load(path).instantiate()
-	
-	if now_playing_instance:
-		add_child(now_playing_instance)
+	var now_playing_path = "res://scenes/now_playing_display.tscn"
+	if ResourceLoader.exists(now_playing_path):
+		var scene = load(now_playing_path)
+		now_playing_display = scene.instantiate()
+		add_child(now_playing_display)
+		print("TimeTrialMode: Now playing display created")
 
 # ============================================================================
 # RACE FLOW
@@ -206,9 +255,9 @@ func _input(event: InputEvent) -> void:
 	
 	# Handle pause
 	if event.is_action_pressed("ui_cancel"):
-		if RaceManager.is_racing() and pause_menu_instance:
-			if pause_menu_instance.has_method("show_pause"):
-				pause_menu_instance.show_pause()
+		if RaceManager.is_racing() and pause_menu:
+			if pause_menu.has_method("show_pause"):
+				pause_menu.show_pause()
 			get_viewport().set_input_as_handled()
 
 # ============================================================================
@@ -226,13 +275,17 @@ func cleanup() -> void:
 	if RaceManager.lap_completed.is_connected(_on_lap_completed):
 		RaceManager.lap_completed.disconnect(_on_lap_completed)
 	
-	# Cleanup additional UI
-	if pause_menu_instance:
-		pause_menu_instance.queue_free()
-	if results_screen_instance:
-		results_screen_instance.queue_free()
-	if now_playing_instance:
-		now_playing_instance.queue_free()
+	# Cleanup UI
+	if race_hud:
+		race_hud.queue_free()
+	if debug_hud:
+		debug_hud.queue_free()
+	if pause_menu:
+		pause_menu.queue_free()
+	if results_screen:
+		results_screen.queue_free()
+	if now_playing_display:
+		now_playing_display.queue_free()
 	
 	# Call parent cleanup
 	super.cleanup()

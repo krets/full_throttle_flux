@@ -117,28 +117,20 @@ func _on_button_focus() -> void:
 func _on_start_pressed() -> void:
 	AudioManager.play_select()
 	
-	# Set mode to time trial
-	RaceManager.set_mode(RaceManager.RaceMode.TIME_TRIAL)
+	# Set mode, then go to track selection
+	GameManager.select_mode("time_trial")
 	
-	# Fade out menu music before transitioning to race
-	MusicPlaylistManager.fade_out_for_race()
-	
-	# Small delay to let sound play and music fade before scene change
-	await get_tree().create_timer(0.3).timeout
-	get_tree().change_scene_to_file("res://scenes/time_trial_01.tscn")
+	await get_tree().create_timer(0.15).timeout
+	get_tree().change_scene_to_file("res://scenes/ui/track_select.tscn")
 
 func _on_endless_pressed() -> void:
 	AudioManager.play_select()
 	
-	# Set mode to endless
-	RaceManager.set_mode(RaceManager.RaceMode.ENDLESS)
+	# Set mode, then go to track selection
+	GameManager.select_mode("endless")
 	
-	# Fade out menu music before transitioning to race
-	MusicPlaylistManager.fade_out_for_race()
-	
-	# Small delay to let sound play and music fade before scene change
-	await get_tree().create_timer(0.3).timeout
-	get_tree().change_scene_to_file("res://scenes/time_trial_01.tscn")
+	await get_tree().create_timer(0.15).timeout
+	get_tree().change_scene_to_file("res://scenes/ui/track_select.tscn")
 
 func _on_leaderboard_pressed() -> void:
 	AudioManager.play_select()

@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://cwr0mhg0tnq3w"]
+
+[ext_resource type="PackedScene" uid="uid://d1u5hhcgev84t" path="res://scenes/trackGeo.tscn" id="1_h8kaj"]
+[ext_resource type="PackedScene" uid="uid://c8x2boost1pad" path="res://scenes/boost_pad.tscn" id="2_5w2fx"]
+[ext_resource type="PackedScene" uid="uid://cs3rwb27lu2ct" path="res://scenes/start_finish_line.tscn" id="3_2p4q8"]
+[ext_resource type="Script" uid="uid://do1bpsq8pkyxk" path="res://scripts/tracks/starting_grid.gd" id="4_d28tc"]
+
+[sub_resource type="Environment" id="Environment_h8kaj"]
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.84, 0.06719998, 0.2217602, 1)
+
+[node name="NeonStrip" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.86602354, -0.43301606, 0.25000072, 0, 0.49999818, 0.86602646, -0.5000033, 0.7499993, -0.4330102, 0, 50, 0)
+light_color = Color(1, 0, 0, 1)
+shadow_enabled = true
+shadow_blur = 2.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_h8kaj")
+
+[node name="Track" parent="." instance=ExtResource("1_h8kaj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.5, 0)
+
+[node name="BoostPad" parent="." instance=ExtResource("2_5w2fx")]
+transform = Transform3D(-0.9882064, -0.040250532, 0.14774287, -0.03622611, 0.9988984, 0.02983104, -0.14878082, 0.024127085, -0.98857623, -194.35808, 1.0415039, 222.76703)
+
+[node name="StartFinishLine" parent="." instance=ExtResource("3_2p4q8")]
+transform = Transform3D(0.9281205, -0.04806451, -0.3691642, 0.040896334, 0.9987924, -0.027222943, 0.3700268, 0.010168711, 0.9289653, -45.395466, 15.62055, -249.69783)
+
+[node name="StartingGrid" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52.293106, 21.053905, -239.12303)
+script = ExtResource("4_d28tc")
+metadata/_custom_type_script = "uid://do1bpsq8pkyxk"
+
+[node name="Slot1" type="Marker3D" parent="StartingGrid"]
+transform = Transform3D(0.9396926, 0, -0.34202012, 0, 1, 0, 0.34202012, 0, 0.9396926, -3.3510475, -3, 7.9537964)
+gizmo_extents = 3.25

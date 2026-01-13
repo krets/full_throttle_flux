@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://0xnacsur8x6b"]
+
+[ext_resource type="PackedScene" uid="uid://du8cy2tcim5ko" path="res://assets/shipTest.glb" id="1_4hnvm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_13b5a"]
+albedo_color = Color(0.6201625, 0.13582644, 0.23373488, 1)
+metallic = 0.91
+roughness = 0.31
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_om6q5"]
+albedo_color = Color(0.5950173, 0.35503528, 0.08577856, 1)
+metallic = 0.87
+metallic_specular = 0.24
+roughness = 0.41
+
+[node name="shipTest" instance=ExtResource("1_4hnvm")]
+
+[node name="canopy" parent="ship01" index="0"]
+material_override = SubResource("StandardMaterial3D_13b5a")
+
+[node name="hull" parent="ship01" index="1"]
+material_override = SubResource("StandardMaterial3D_om6q5")

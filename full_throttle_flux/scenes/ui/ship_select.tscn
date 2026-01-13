@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2f8e5m7o85t7"]
+
+[ext_resource type="Script" uid="uid://dfnf7aakrucb0" path="res://scripts/ui/ship_select.gd" id="1_i3ody"]
+
+[node name="ShipSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_i3ody")
