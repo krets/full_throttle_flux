@@ -1,5 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://cfl0lfoj7rm1s"]
+[gd_scene load_steps=11 format=3 uid="uid://cfl0lfoj7rm1s"]
 
+[ext_resource type="Material" uid="uid://f5edkxv6sao2" path="res://shaders/resources/grid_material.tres" id="1_8a1g2"]
 [ext_resource type="PackedScene" uid="uid://cs3rwb27lu2ct" path="res://scenes/start_finish_line.tscn" id="2_8a1g2"]
 [ext_resource type="Script" uid="uid://do1bpsq8pkyxk" path="res://scripts/tracks/starting_grid.gd" id="3_cxd56"]
 
@@ -47,15 +48,25 @@ void fragment() {
     METALLIC = 0.0;
 }"
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_lade4"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cxd56"]
 render_priority = 0
 shader = SubResource("Shader_242es")
 shader_parameter/grid_color = Color(0, 0.8, 1, 1)
 shader_parameter/background_color = Color(0.05, 0.05, 0.1, 1)
-shader_parameter/grid_size = 0.25000000861512
+shader_parameter/grid_size = 10.0
 shader_parameter/line_width = 0.5
-shader_parameter/major_grid_every = 2.000000095
-shader_parameter/major_line_width = 0.50000002305148
+shader_parameter/major_grid_every = 10.000000475
+shader_parameter/major_line_width = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_10ghd"]
+render_priority = 0
+shader = SubResource("Shader_242es")
+shader_parameter/grid_color = Color(0, 0.8, 1, 1)
+shader_parameter/background_color = Color(0.05, 0.05, 0.1, 1)
+shader_parameter/grid_size = 10.0
+shader_parameter/line_width = 0.5
+shader_parameter/major_grid_every = 10.000000475
+shader_parameter/major_line_width = 1.0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8a1g2"]
 sky_top_color = Color(0.05, 0.05, 0.15, 1)
@@ -82,22 +93,58 @@ glow_bloom = 0.2
 [node name="Path3D" type="Path3D" parent="."]
 curve = SubResource("Curve3D_lade4")
 
-[node name="CSGPolygon3D2" type="CSGPolygon3D" parent="Path3D"]
+[node name="groundGeo" type="CSGPolygon3D" parent="Path3D"]
 transform = Transform3D(1, 0, 0, 0, 0.999836, -0.0181155, 0, 0.0181155, 0.999836, 0, 0, 0)
 use_collision = true
-polygon = PackedVector2Array(26.9975, 5.89258, 16.8982, 6.32783, 16.1879, 1.76581, -16.5493, 3.89228, -16.6904, 9.97558, -34.705, 5.81169, -34.1104, -4.98032, 27.2544, -1.02657)
+polygon = PackedVector2Array(18.94209, 2.2563944, 16.1879, 1.76581, -16.617033, 1.8802173, -19.665726, 2.767276, -19.665726, -3.1930122, 18.990906, -2.6885724)
 mode = 2
 path_node = NodePath("..")
 path_interval_type = 0
 path_interval = 0.8
-path_simplify_angle = 0.3
+path_simplify_angle = 1.0
 path_rotation = 2
 path_rotation_accurate = false
 path_local = false
 path_continuous_u = true
 path_u_distance = 0.0
 path_joined = true
-material = SubResource("ShaderMaterial_lade4")
+material = ExtResource("1_8a1g2")
+
+[node name="wallLeftGeo" type="CSGPolygon3D" parent="Path3D"]
+transform = Transform3D(1, 0, 0, 0, 0.999836, -0.0181155, 0, 0.0181155, 0.999836, 0, 0, 0)
+use_collision = true
+collision_layer = 4
+polygon = PackedVector2Array(26.9975, 5.89258, 17.448002, 6.9199634, 16.1879, 1.76581, 15.962437, -3.235585, 27.114857, -3.065292)
+mode = 2
+path_node = NodePath("..")
+path_interval_type = 0
+path_interval = 1.0
+path_simplify_angle = 1.0
+path_rotation = 2
+path_rotation_accurate = false
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false
+material = SubResource("ShaderMaterial_cxd56")
+
+[node name="wallRightGeo" type="CSGPolygon3D" parent="Path3D"]
+transform = Transform3D(1, 0, 0, 0, 0.999836, -0.0181155, 0, 0.0181155, 0.999836, 0, 0, 0)
+use_collision = true
+collision_layer = 4
+polygon = PackedVector2Array(-16.813766, 1.958381, -17.707664, 6.34345, -27.19999, 5.57713, -27.111715, -2.8098512, -16.810621, -2.7672782)
+mode = 2
+path_node = NodePath("..")
+path_interval_type = 0
+path_interval = 1.0
+path_simplify_angle = 1.0
+path_rotation = 2
+path_rotation_accurate = false
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false
+material = SubResource("ShaderMaterial_10ghd")
 
 [node name="StartFinishLine" parent="." instance=ExtResource("2_8a1g2")]
 transform = Transform3D(0.053744398, 0.033174716, 0.9980034, -0.045083392, 0.9985093, -0.030763682, -0.9975365, -0.043339983, 0.05516005, -54.97947, -29.214176, 1754.1183)
