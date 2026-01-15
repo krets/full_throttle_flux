@@ -10,5 +10,4 @@ description = "Built for raw speed. Harder to handle but blazing fast."
 manufacturer = "Velocity Labs"
 max_speed = 250.0
 thrust_power = 110.0
-grip = 3.0
-airbrake_grip = 0.4
+hover_height = 3.0
